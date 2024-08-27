@@ -1,0 +1,14 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_HSSD
+  - _self_
+
+habitat_baselines:
+  rl:
+    policy:
+      main_agent:
+        transformer_config:
+          inter_episodes_attention: False
+          reset_position_index: True
+          add_sequence_idx_embed: False

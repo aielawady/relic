@@ -1,0 +1,70 @@
+# Andrew's settings for launching experiments
+base_data_dir: "/srv/share/aszot3/habitat2"
+proj_name: "hab_trans"
+wb_entity: "aszot"
+ckpt_cfg_key: "CHECKPOINT_FOLDER"
+add_env_vars:
+  - "MAGNUM_LOG=quiet"
+  - "HABITAT_SIM_LOG=quiet"
+proj_dat_add_env_vars:
+  debug: "HABITAT_ENV_DEBUG=1"
+  debug_eval: "HABITAT_ENV_DEBUG=1"
+conda_env: "hab_trans"
+slurm_ignore_nodes: ["spd-13"]
+add_all: "habitat_baselines.wb.entity=$WB_ENTITY habitat_baselines.wb.run_name=$SLURM_ID habitat_baselines.wb.project_name=$PROJECT_NAME habitat_baselines.checkpoint_folder=$DATA_DIR/checkpoints/$SLURM_ID/ habitat_baselines.video_dir=$DATA_DIR/vids/$SLURM_ID/ habitat_baselines.log_file=$DATA_DIR/logs/$SLURM_ID.log habitat_baselines.tensorboard_dir=$DATA_DIR/tb/$SLURM_ID/ habitat_baselines.writer_type=wb"
+eval_sys:
+  ckpt_load_k: "habitat_baselines.eval_ckpt_path_dir"
+  ckpt_search_dir: "checkpoints"
+  run_id_k: "habitat_baselines.wb.run_name"
+  sep: "="
+  add_eval_to_vals:
+    - "habitat_baselines.checkpoint_folder"
+    - "habitat_baselines.log_file"
+    - "habitat_baselines.wb.run_name"
+  change_vals:
+    "--run-type": "eval"
+proj_data:
+  # Eval settings
+  eval: "habitat_baselines.writer_type tb habitat_baselines.num_environments 1 habitat_baselines.load_resume_state_config=False"
+  eval10proc: "habitat_baselines.num_environments=10 habitat_baselines.load_resume_state_config=False"
+  norender: "habitat_baselines.eval.video_option=\"[]\""
+  video: "habitat_baselines.test_episode_count=5 habitat_baselines.writer_type=tb habitat_baselines.num_environments=1"
+
+  # Debug settings.
+  debug: "habitat_baselines.num_environments=1 habitat_baselines.writer_type=tb habitat_baselines.log_interval=1 habitat_baselines.rl.ppo.num_mini_batch=1 habitat_baselines.video_dir=$DATA_DIR/vids/debug/ habitat_baselines.trainer_name=ppo"
+  verdebug: "habitat_baselines.num_environments=1 habitat_baselines.writer_type=tb habitat_baselines.log_interval=1 habitat_baselines.rl.ppo.num_mini_batch=1 habitat_baselines.video_dir=$DATA_DIR/vids/debug/"
+  procdebug: "habitat_baselines.writer_type=tb habitat_baselines.log_interval=1 habitat_baselines.video_dir=$DATA_DIR/vids/debug/"
+
+  # Dataset settings.
+  ppo: "habitat_baselines.trainer_name=ppo"
+  ddppo: "habitat_baselines.trainer_name=ddppo"
+  minival: "habitat_baselines.eval.split=minival habitat.dataset.split=minival"
+  testep: "habitat.dataset.data_path=\"data/datasets/replica_cad/rearrange/v1/train/rearrange_easy_test.json.gz\""
+  train: "eval.split=train" # Evaluate on the train dataset.
+
+  # Task settings
+  kin: "habitat.simulator.kinematic_mode=True habitat.simulator.ac_freq_ratio=1 habitat.task.measurements.force_terminate.max_accum_force=-1.0 habitat.task.measurements.force_terminate.max_instant_force=-1.0"
+  hl: "habitat.task.measurements.composite_success.must_call_stop=False habitat.environment.max_episode_steps=20"
+  noforceterm: "habitat.task.measurements.force_terminate.max_accum_force=-1.0 habitat.task.measurements.force_terminate.max_instant_force=-1.0"
+
+  # GPU adjustments
+  # A40 depth input
+  a40d: "habitat_baselines.num_environments=48"
+
+  # Skills
+  place: "benchmark/rearrange=place"
+  pick: "benchmark/rearrange=pick"
+  nav: "benchmark/rearrange=nav_to_obj"
+  opencab: "benchmark/rearrange=open_cab"
+  openfridge: "benchmark/rearrange=open_fridge"
+  # Add at the end for TP-SRL mode.
+  tpsrl: "habitat/task/rearrange/agents@habitat.task.habitat.task.rearrange.agents=fetch_arm habitat.task.spawn_max_dist_to_obj=-1.0 habitat.dataset.split=minival habitat.task.base_angle_noise=0.1 habitat.task.num_spawn_attempts=1"
+
+slurm:
+  small:
+    c: 7
+    partition: short
+  large:
+    c: 16
+    partition: short
+    constraint: 'a40'

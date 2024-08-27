@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_HSSD
+  - _self_
+
+
+habitat_baselines:
+  rl:
+    ppo:
+      updates_per_rollout: 256
+      num_steps: 65536

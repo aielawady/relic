@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_HSSD
+  - _self_
+
+habitat_baselines:
+  reset_envs_after_update: False
+  call_after_update_env: True
+  rl:
+    policy:
+      main_agent:
+        transformer_config:
+          inter_episodes_attention: False
+          reset_position_index: True
+          add_sequence_idx_embed: False
+          context_len: 512
+    ppo:
+      num_steps: 256
+      full_updates_per_rollout: 0
+      updates_per_rollout: 1
+      shuffle_old_episodes: False

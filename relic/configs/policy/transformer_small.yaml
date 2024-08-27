@@ -1,0 +1,30 @@
+name: PointNavResNetTransformerPolicy
+action_distribution_type: categorical
+transformer_config:
+  model_name: "llamarl"
+  n_layers: 4
+  n_heads: 8
+  n_hidden: 256
+  n_mlp_hidden: 1024
+  kv_size: 32
+  activation: "gelu_new"
+  inter_episodes_attention: True
+  reset_position_index: True
+  add_sequence_idx_embed: True
+  position_embed_type: learnable
+  sequence_embed_type: rope
+  gated_residual: False
+  context_len: 0
+  banded_attention: False
+  orphan_steps_attention: True
+  add_context_loss: False
+  depth_dropout_p: 0.1
+  max_position_embeddings: 32768
+  add_sink_kv: True
+  mul_factor_for_sink_attn: False
+  is_sink_v_trainable: False
+vc1_config:
+  is_2d_output: False
+  avg_pool_size: 2
+training_precision_config:
+  visual_encoder: float16

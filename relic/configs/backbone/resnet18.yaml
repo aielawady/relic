@@ -1,0 +1,8 @@
+# @package _global_
+
+habitat_baselines:
+  force_blind_policy: False
+  rl:
+    ddppo:
+      train_encoder: True
+      backbone: resnet18

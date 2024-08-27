@@ -1,0 +1,39 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_base
+  - /tasks: ExtObjNav_replicaCAD
+  - override /backbone: blind
+  - override /policy@habitat_baselines.rl.policy.main_agent: transformer_tiny
+  - _self_
+
+habitat:
+  task:
+    make_env_fn: "relic.envs.custom_envs.example.make_env"
+
+habitat_baselines:
+  num_environments: 8
+  total_num_steps: 5e6
+  num_checkpoints: 10
+  rl:
+    policy:
+      main_agent:
+        transformer_config:
+          is_sink_v_trainable: True
+          is_sink_k_trainable: True
+          inter_episodes_attention: False
+          reset_position_index: True
+          add_sequence_idx_embed: False
+          context_len: 128        # This should larger than the max number of steps in the task.
+    ppo:
+      num_mini_batch: 8
+      grad_accum_mini_batches: 4
+      entropy_coef: 0.01
+      value_loss_coef: 0.5
+      updates_per_rollout: 1
+      num_steps: 256            # This controls the frequency of policy updates.
+      full_updates_per_rollout: 0
+      lr: 2e-4
+      warmup_total_iters: 10000
+      lrsched_T_max: 5000000        # Typically the same value as habitat_baselines.total_num_steps.
+      shuffle_old_episodes: False

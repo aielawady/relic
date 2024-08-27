@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - relic_base
+  - /tasks: ExtObjNav_replicaCAD
+  - _self_
+
+habitat_baselines:
+  rl:
+    ppo:
+      full_updates_per_rollout: 1
+      updates_per_rollout: 4

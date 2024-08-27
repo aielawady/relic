@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_replicaCAD
+  - _self_
+
+habitat_baselines:
+  rl:
+    policy:
+      main_agent:
+        transformer_config:
+          add_sink_tokens: False
+          add_sink_kv: True
+          is_sink_v_trainable: True
+          is_sink_k_trainable: True

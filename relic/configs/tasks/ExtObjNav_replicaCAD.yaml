@@ -1,0 +1,127 @@
+# @package _global_
+
+defaults:
+  - /habitat: habitat_config_base
+  - /habitat/task: custom_task_config_base
+  - /habitat/simulator: rearrange_sim
+  - /habitat/simulator/sensor_setups@habitat.simulator.agents.main_agent: rgb_head_agent
+  - /habitat/simulator/sim_sensors@habitat.simulator.agents.main_agent.sim_sensors.head_panoptic_sensor: head_panoptic_sensor
+  - /habitat/simulator/agents@habitat.simulator.agents.main_agent: fetch_suction
+  - /habitat/dataset/rearrangement: replica_cad
+  - /habitat/task/actions:
+    - rearrange_stop
+    - move_forward_custom
+    - turn_left_custom
+    - turn_right_custom
+    - rearrange_look_up
+    - rearrange_look_down
+  - /habitat/task/measurements:
+    - articulated_agent_force
+    - force_terminate
+    - articulated_agent_colls
+    - does_want_terminate
+    - num_steps
+    - geo_disc_distance
+    - l2_distance
+    - rot_dist_to_closest_goal
+    - extobjnav_success
+    - spl_geodisc
+    - soft_spl_geodisc
+    - bad_called_terminate
+    - named_nav_to_obj_reward
+  - /habitat/task/lab_sensors:
+    - joint_sensor
+    - one_hot_target_sensor
+    - gps_sensor
+  - _self_
+
+
+habitat:
+  env_task: "CustomGymHabitatEnv"
+  simulator:
+    type: CustomRearrangeSim-v0
+    kinematic_mode: True
+    ac_freq_ratio: 1
+    step_physics: False
+    turn_angle: 30
+    habitat_sim_v0:
+      allow_sliding: True
+    agents:
+      main_agent:
+        joint_start_noise: 0
+        joint_start_override: [1.573,1.573,-3.14,-1.573,0,-1.573,0]
+  gym:
+    obs_keys:
+      - head_rgb
+      - one_hot_target_sensor
+      - gps
+  task:
+    type: PddlMultiTask-v0
+    start_template: []
+    goal_template:
+      expr_type: AND
+      sub_exprs:
+        - "robot_at(obj, robot_0)"
+    sample_entities:
+      "obj":
+        "type": "movable_entity_type"
+    reward_measure: named_nav_to_obj_reward
+    task_spec_base_path: 'configs/pddl'
+    pddl_domain_def: "domain"
+    success_measure: extobjnav_success
+    success_reward: 2
+    slack_reward: -0.001
+    end_on_success: True
+    constraint_violation_ends_episode: False
+    constraint_violation_drops_object: True
+    measurements:
+      custom_predicate_task_success:
+        must_call_stop: True
+        max_angle: 10000 # inf
+        must_see_object: True
+        sees_vertical_margin: 20 # not used
+        sees_horizontal_margin: 50 # not used
+        ignore_objects: False # not used
+        ignore_receptacles: False # not used
+        ignore_non_negative: False # not used
+      custom_predicate_task_reward:
+        dist_reward: 1.0
+        should_reward_turn: False
+        angle_dist_reward: 0.01
+        constraint_violate_pen: 0.0
+        force_pen: 0.0
+        max_force_pen: 0.0
+        force_end_pen: 0.0
+        bad_term_pen: 0.0
+        end_on_bad_termination: True
+        use_max_dist: False
+      force_terminate:
+        max_accum_force: -1
+        max_instant_force: -1
+      geo_disc_distance:
+        lock_closest_object: False
+    fix_position_same_episode: False
+    fix_target_same_episode: False
+    fix_instance_index: False
+    target_type: object_type
+    target_sampling_strategy: object_type
+    cleanup_nav_points: False
+    one_receptacle: False
+    is_large_objs: False
+    actions:
+      turn_left_custom:
+        ang_speed: 30
+      turn_right_custom:
+        ang_speed: -30
+      rearrange_look_down:
+        tilt_angle: 30
+      rearrange_look_up:
+        tilt_angle: 30
+      move_forward_custom:
+        lin_speed: 0.25
+
+  environment:
+    max_episode_steps: 500
+  dataset:
+    type: "RearrangeDatasetTransformers-v0"
+    data_path: data/datasets/ExtObjNav_replicaCAD/rearrange/v1/{split}/rearrange_easy_clean.json.gz

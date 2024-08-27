@@ -1,0 +1,5 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_HSSD
+  - _self_

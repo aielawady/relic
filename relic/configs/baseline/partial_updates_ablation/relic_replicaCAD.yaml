@@ -1,0 +1,11 @@
+# @package _global_
+
+defaults:
+  - /baseline/relic_replicaCAD
+  - _self_
+
+habitat_baselines:
+  rl:
+    ppo:
+      full_updates_per_rollout: 1
+      updates_per_rollout: 4
